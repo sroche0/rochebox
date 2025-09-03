@@ -1,0 +1,59 @@
+name: matrix
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: matrix.synapse
+    restart: unless-stopped
+    env_file:
+      - synapse.env
+      - postgres.env
+    volumes:
+      - $APPDATA/matrix/synapse:/data
+    ports:
+      - "8008:8008"
+
+  synapse-admin:
+    image: awesometechnologies/synapse-admin:latest
+    container_name: matrix.synapse-admin
+    hostname: synapse-admin
+    restart: unless-stopped
+    volumes:
+      - $APPDATA/matrix/synapse-admin:/data
+    ports:
+      - "8980:80"
+
+  postgres:
+    build:
+      context: .
+      dockerfile: postgres.Dockerfile
+    container_name: matrix.db
+    restart: unless-stopped
+    env_file:
+      - matrix/postgres.env
+    volumes:
+      - $APPDATA/matrix/postgresdata:/var/lib/postgresql/data
+
+  # BRIDGES
+  mautrix-whatsapp:
+    image: dock.mau.dev/mautrix/whatsapp:latest
+    container_name: matrix.bridge.whatsapp
+#    user: ${PUID}:${PGID}
+    restart: unless-stopped
+    volumes:
+      - $APPDATA/matrix/bridges/whatsapp:/data
+
+  mautrix-discord:
+    image: dock.mau.dev/mautrix/discord:latest
+    container_name: matrix.bridge.discord
+#    user: ${PUID}:${PGID}
+    restart: unless-stopped
+    volumes:
+      - $APPDATA/matrix/bridges/discord:/data
+
+  mautrix-googlechat:
+    image: dock.mau.dev/mautrix/googlechat:latest
+    container_name: matrix.bridge.googlechat
+#    user: ${PUID}:${PGID}
+    restart: unless-stopped
+    volumes:
+      - $APPDATA/matrix/bridges/gchat:/data
