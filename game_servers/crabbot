@@ -11,7 +11,7 @@ class CrabBot:
     The server is provided as a command-line argument. Each server has a docker-compose
     file named "compose.<server>.yml".
     """
-    __version__ = '1.0.1'
+    __version__ = '0.2.1'
 
     def __init__(self, server_list, script_dir=""):
         """
@@ -119,15 +119,13 @@ def main():
     server_list = []
     allowed_actions = ['up', 'down', 'pull', 'update', 'ps', 'restart']
 
-    # detect if we are running as an installed script
-    home = os.getenv('HOME')
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    if script_dir == f'{home}/.local/bin':
-        script_dir = f'{home}/.crabbot'
-
-    for name in os.listdir(script_dir):
-        if os.path.isdir(os.path.join(script_dir, name)) and not name.startswith('.') and name != 'bin':
-            server_list.append(name)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    for root, dirs, files in os.walk(script_dir, topdown=False):
+        for name in files:
+            if 'compose' in name and '.yml' in name:
+                name = name.replace('compose.', '')
+                name = name.replace('.yml', '')
+                server_list.append(name)
 
     parser = argparse.ArgumentParser(description="Control containerized dedicated game servers.")
     parser.add_argument("server", help=f"Controllable servers are: {', '.join(server_list)}")

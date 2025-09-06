@@ -69,8 +69,10 @@ create_symlinks() {
     if [[ ":$PATH:" != *":${local_bin_path}:"* ]]; then
         if [[ "$SHELL" == *"/bash" ]]; then
             add_to_path "${HOME}/.bash_profile" ${local_bin_path}
+            source "${HOME}/.bash_profile"
         elif [[ "$SHELL" == *"/zsh" ]]; then
             add_to_path "${HOME}/.zshrc" ${local_bin_path}
+            source "${HOME}/.zshrc"
         else
             echo "Unknown shell: $SHELL"
             echo "Please add ${local_bin_path} to your \$PATH manually:"
@@ -81,17 +83,11 @@ create_symlinks() {
     if [ ! -f "$local_bin_path/crabbot" ]; then
       ln -s "$(pwd)/crabbot" "$local_bin_path/crabbot"
     fi
-
-    echo "Creating symlink to ${HOME}/.crabbot"
-    if [ ! -f "${HOME}/.crabbot" ]; then
-      ln -s "$(pwd)" "${HOME}/.crabbot"
-    fi
 }
 
 copy_sample_env_files
 source .env
 mkdir -p "$APPDATA"
 create_symlinks
-source ~/.bash_profile
 
 echo "Installation completed successfully."
