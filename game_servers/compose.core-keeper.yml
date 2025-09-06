@@ -1,0 +1,13 @@
+name: core-keeper
+services:
+  core-keeper:
+    container_name: ${PROJ_PREFIX}.core-keeper
+    image: escaping/core-keeper-dedicated
+    restart: unless-stopped
+    env_file:
+      - ./.env
+      - ./core-keeper/override.env
+    volumes:
+      - ${APPDATA}/core-keeper/server-files:/home/steam/core-keeper-dedicated
+      - ${APPDATA}/core-keeper/config:/home/steam/core-keeper-data
+    stop_grace_period: 2m

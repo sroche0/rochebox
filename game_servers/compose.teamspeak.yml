@@ -1,0 +1,18 @@
+name: teamspeak
+services:
+  teamspeak:
+    container_name: ${PROJ_PREFIX}.teamspeak
+    image: teamspeak:latest
+    restart: unless-stopped
+    ports:
+      - 9987:9987/udp
+      - 10011:10011
+      - 30033:30033
+      - 41144:41144
+    environment:
+      - TS3SERVER_LICENSE=accept
+    env_file:
+      - ./.env
+      - ./teamspeak/override.env
+    volumes:
+      - ${APPDATA}/teamspeak:/var/ts3server

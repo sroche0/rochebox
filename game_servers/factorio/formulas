@@ -1,0 +1,3 @@
+# Used for an ingredient in a requester chest. Requests either 2 stacks or 
+# enough to produce the recipe for 60 seconds, whichever is less
+min((p1_s * 2), (p0_i1 / p0_t * 60))

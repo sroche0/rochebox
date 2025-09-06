@@ -1,0 +1,29 @@
+name: minecraft
+services:
+  minecraft:
+    image: itzg/minecraft-server
+    container_name: ${PROJ_PREFIX}.minecraft
+    restart: unless-stopped
+    ports:
+      - 25565:25565
+    environment:
+      - EULA=TRUE
+      - ENABLE_AUTOPAUSE=TRUE
+    env_file:
+      - ./.env
+      - ./minecraft/override.env
+    volumes:
+      - ${APPDATA}/minecraft:/data
+
+  rcon:
+    image: itzg/rcon
+    container_name: ${PROJ_PREFIX}.minecraft.rcon
+    restart: unless-stopped
+    ports:
+      - "4326:4326"
+      - "4327:4327"
+    environment:
+      RWA_RCON_HOST: minecraft
+    env_file:
+      - ./.env
+      - ./minecraft/override.env
