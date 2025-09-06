@@ -1,0 +1,17 @@
+name: vrising
+services:
+  vrising:
+    image: bjg96/vrising-server:latest
+    container_name: ${PROJ_PREFIX}.vrising
+    restart: unless-stopped
+    ports:
+      - "9876:9876/udp"
+      - "9877:9877/udp"
+      - "27015:27015/udp"
+      - "27016:27016/udp"
+    env_file:
+      - ./.env
+      - ./vrising/override.env
+    volumes:
+      - ${APPDATA}/vrising:/data
+      - ${APPDATA}/vrising/config:/data/Settings

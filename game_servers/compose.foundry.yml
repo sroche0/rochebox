@@ -1,0 +1,26 @@
+name: foundry
+services:
+  foundry:
+    image: felddy/foundryvtt:${FOUNDRY_VERSION}
+    container_name: ${PROJ_PREFIX}.foundry
+    hostname: foundry.rochebox.net
+    restart: "unless-stopped"
+    ports:
+      - "30000:30000/tcp"
+    environment:
+      - FOUNDRY_PROXY_SSL=true
+    env_file:
+      - ./.env
+      - ./foundry/override.env
+    volumes:
+      - ${APPDATA}/foundry:/data
+
+  foundry_sync:
+    build:
+      context: .
+      dockerfile: ./foundry/foundry_sync.Dockerfile
+    container_name: ${PROJ_PREFIX}.foundry_sync
+    restart: "unless-stopped"
+    volumes:
+      - ${APPDATA}/foundry/Data/assets/:/data
+      - ${APPDATA}/rclone:/root/.config/rclone

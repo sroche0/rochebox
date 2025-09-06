@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+import os
+import sys
+import subprocess
+import argparse
+
+
+class CrabBot:
+    """
+    A simple bot that runs docker-compose commands for a list of game servers.
+    The server is provided as a command-line argument. Each server has a docker-compose
+    file named "compose.<server>.yml".
+    """
+    __version__ = '1.0.1'
+
+    def __init__(self, server_list, script_dir=""):
+        """
+        Initialize a new instance of CrabBot.
+
+        Args:
+            server_list (list): List of servers to manage.
+            script_dir (str): Directory containing the scripts.
+        """
+        self.server_list = server_list
+        self.cwd = script_dir
+
+    def run_docker_command(self, server, command) -> str:
+        """
+        Run a Docker Compose command on a specified server.
+
+        Args:
+            server (str): The name of the server.
+            command (str): The Docker Compose command to execute.
+
+        Returns:
+            str: The standard output of the command execution.
+
+        Raises:
+            Exception: If the Docker command returns a non-zero exit code, indicating an error.
+        """
+        cmd = f"docker compose -f {self.cwd}/compose.{server}.yml {command}"
+        result = subprocess.run(cmd, shell=True, text=True)
+        if result.returncode != 0:
+            print(f"Error running command: {cmd}")
+            print(result.stderr)
+        return result.stdout
+
+    def run(self, server, action):
+        """
+        Execute a specific action on a given server.
+
+        Args:
+            server_name (str): Name of the server to perform the action on.
+            action (str): Action to be performed ('up', 'down', 'pull', 'update', 'ps', 'restart').
+
+        Raises:
+            Exception: If an invalid action is provided.
+        """
+        if action == 'up':
+            self.pre_up_action(server)
+            self.run_docker_command(server, 'up -d')
+
+        elif action == 'down':
+            self.pre_down_action(server)
+            self.run_docker_command(server, 'down')
+
+        elif action == 'pull':
+            self.run_docker_command(server, 'pull')
+
+        elif action == 'update':
+            self.run_docker_command(server, 'pull')
+            self.pre_down_action(server)
+            self.run_docker_command(server, 'down')
+            self.pre_up_action(server)
+            self.run_docker_command(server, 'up -d')
+
+        elif action == 'ps':
+            self.run_docker_command(server, 'ps')
+
+        elif action == 'restart':
+            self.run_docker_command(server, 'restart')
+
+    def pre_up_action(self, server):
+        """Run actions before bringing a container up."""
+        print("Running pre-up actions...")
+
+    def pre_down_action(self, server):
+        """Run actions after bringing a container down."""
+        print("Running pre-down actions...")
+
+
+def validate_args(parser, server_list, allowed_actions) -> dict:
+    """
+    Validate the command-line arguments provided by the user.
+
+    Args:
+        parser (argparse.ArgumentParser): The ArgumentParser object used to define and parse command-line arguments.
+        server_list (list of str): A list of valid servers that can be controlled.
+        allowed_actions (list of str): A list of valid actions that can be performed on the servers.
+
+    Returns:
+        dict: A dictionary containing the validated arguments.
+
+    Raises:
+        SystemExit: If an invalid server or action is provided, the function prints an error message and exits the program.
+    """
+    args = parser.parse_args()
+    if args.server not in server_list:
+        print(f"Error: Invalid server '{args.server}'. Valid servers are: {', '.join(server_list)}")
+        sys.exit(1)
+
+    if args.action not in allowed_actions:
+        print(f"Error: Invalid action. Allowed actions are: {', '.join(allowed_actions)}")
+        sys.exit(1)
+
+    return vars(args)
+
+def main():
+    server_list = []
+    allowed_actions = ['up', 'down', 'pull', 'update', 'ps', 'restart']
+
+    # detect if we are running as an installed script
+    home = os.getenv('HOME')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    if script_dir == f'{home}/.local/bin':
+        script_dir = f'{home}/.crabbot'
+
+    for name in os.listdir(script_dir):
+        if os.path.isdir(os.path.join(script_dir, name)) and not name.startswith('.') and name != 'bin':
+            server_list.append(name)
+
+    parser = argparse.ArgumentParser(description="Control containerized dedicated game servers.")
+    parser.add_argument("server", help=f"Controllable servers are: {', '.join(server_list)}")
+    parser.add_argument("action", help=f"Action to perform: {', '.join(allowed_actions)}")
+    parser.add_argument('-v', '--version', help='print the script version', action='store_true', default=False, dest='version')
+
+    args = validate_args(parser, server_list, allowed_actions)
+
+    bot = CrabBot(server_list, script_dir)
+    if args.get('version'):
+        print(f'crabbot v{bot.__version__}')
+        sys.exit(0)
+    bot.run(args['server'], args['action'])
+
+if __name__ == "__main__":
+    main()

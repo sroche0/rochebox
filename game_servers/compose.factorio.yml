@@ -1,0 +1,29 @@
+name: factorio
+services:
+  factorio:
+    image: factoriotools/factorio:stable
+    container_name: ${PROJ_PREFIX}.factorio
+    restart: "unless-stopped"
+    ports:
+      - "34197:34197/udp"
+    environment:
+      - LOAD_LATEST_SAVE=true
+      - UPDATE_MODS_ON_START=true
+    env_file:
+      - ./.env
+      - ./factorio/override.env
+    volumes:
+      - ${APPDATA}/factorio:/factorio
+
+  rcon:
+    image: itzg/rcon
+    container_name: ${PROJ_PREFIX}.factorio.rcon
+    restart: unless-stopped
+    ports:
+      - "4328:4326"
+      - "4329:4327"
+    environment:
+      RWA_RCON_HOST: factorio
+    env_file:
+      - ./.env
+      - ./factorio/override.env
