@@ -4,6 +4,9 @@ services:
     image: matrixdotorg/synapse:latest
     container_name: matrix.synapse
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_started
     env_file:
       - synapse.env
       - postgres.env
@@ -29,31 +32,51 @@ services:
     container_name: matrix.db
     restart: unless-stopped
     env_file:
-      - matrix/postgres.env
+      - postgres.env
     volumes:
       - $APPDATA/matrix/postgresdata:/var/lib/postgresql/data
 
   # BRIDGES
-  mautrix-whatsapp:
+  matrix.bridge.whatsapp:
     image: dock.mau.dev/mautrix/whatsapp:latest
     container_name: matrix.bridge.whatsapp
+    depends_on:
+      matrix.bridge.whatsapp.db:
+        condition: service_started
 #    user: ${PUID}:${PGID}
     restart: unless-stopped
     volumes:
-      - $APPDATA/matrix/bridges/whatsapp:/data
+      - $APPDATA/matrix/bridges/whatsapp/config:/data
 
-  mautrix-discord:
-    image: dock.mau.dev/mautrix/discord:latest
-    container_name: matrix.bridge.discord
-#    user: ${PUID}:${PGID}
+  matrix.bridge.whatsapp.db:
+    image: postgres:14
+    container_name: matrix.bridge.whatsapp.db
     restart: unless-stopped
+    env_file:
+      - whatsapp-bridge-db.env
     volumes:
-      - $APPDATA/matrix/bridges/discord:/data
+      - $APPDATA/matrix/bridges/whatsapp/db:/var/lib/postgresql/data
 
-  mautrix-googlechat:
-    image: dock.mau.dev/mautrix/googlechat:latest
-    container_name: matrix.bridge.googlechat
-#    user: ${PUID}:${PGID}
-    restart: unless-stopped
-    volumes:
-      - $APPDATA/matrix/bridges/gchat:/data
+#  mautrix-discord:
+#    image: dock.mau.dev/mautrix/discord:latest
+#    container_name: matrix.bridge.discord
+##    user: ${PUID}:${PGID}
+#    restart: unless-stopped
+#    volumes:
+#      - $APPDATA/matrix/bridges/discord:/data
+#
+#  mautrix-googlechat:
+#    image: dock.mau.dev/mautrix/googlechat:latest
+#    container_name: matrix.bridge.googlechat
+##    user: ${PUID}:${PGID}
+#    restart: unless-stopped
+#    volumes:
+#      - $APPDATA/matrix/bridges/gchat:/data
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "10.0.0.0/24"
+          gateway: "10.0.0.1"
