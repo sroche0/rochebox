@@ -1,7 +1,13 @@
 name: zomboid
 services:
   zomboid:
-    image: "docker.io/renegademaster/zomboid-dedicated-server:latest"
+    build:
+      context: project_zomboid
+      dockerfile: Dockerfile
+      args:
+        - USER=$PUID
+        - SERVER_BRANCH=42.13.1
+    image: "safetycrab/zomboid-dedicated-server:42.13.1"
     container_name: ${PROJ_PREFIX}.zomboid
     restart: "unless-stopped"
     ports:
@@ -18,6 +24,9 @@ services:
       - ./.env
       - ./project_zomboid/override.env
     volumes:
-      - ${APPDATA}/zomboid/ZomboidDedicatedServer:/home/steam/ZomboidDedicatedServer
+      - ${APPDATA}/zomboid/server-files:/home/steam/projectzomboid
       - ${APPDATA}/zomboid/config:/home/steam/Zomboid/
-      - ${CONFIGS}/project_zomboid:/home/steam/Zomboid/Server/
+      # - ${CONFIGS}/project_zomboid:/home/steam/Zomboid/Server/
+
+    # entrypoint: ["tail", "-f", "/dev/null"]
+    
