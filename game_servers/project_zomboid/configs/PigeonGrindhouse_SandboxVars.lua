@@ -50,7 +50,7 @@ SandboxVars = {
     -- 25 = 22 Hours
     -- 26 = 23 Hours
     -- 27 = Real-time
-    DayLength = 3,
+    DayLength = 4,
     StartYear = 1,
     -- Month in which the game starts. Default = July
     -- 1 = January
@@ -107,7 +107,7 @@ SandboxVars = {
     -- 7 = 2-6 Months
     -- 8 = 6-12 Months
     -- 9 = Disabled
-    WaterShut = 2,
+    WaterShut = 3,
     -- How long after the default start date (July 9, 1993) that the world's electricity turns off for good. Default = 0-30 Days
     -- 1 = Instant
     -- 2 = 0-30 Days
@@ -118,7 +118,7 @@ SandboxVars = {
     -- 7 = 2-6 Months
     -- 8 = 6-12 Months
     -- 9 = Disabled
-    ElecShut = 2,
+    ElecShut = 3,
     -- How long alarm batteries can last for after the power shuts off. Default = 0-30 Days
     -- 1 = Instant
     -- 2 = 0-30 Days
@@ -126,13 +126,13 @@ SandboxVars = {
     -- 4 = 0-6 Months
     -- 5 = 0-1 Year
     -- 6 = 0-5 Years
-    AlarmDecay = 2,
+    AlarmDecay = 3,
     -- How long after the default start date (July 9, 1993) that plumbing fixtures (eg. sinks) stop being infinite sources of water. Min: -1 Max: 2147483647 Default: 14
-    WaterShutModifier = 14,
+    WaterShutModifier = 30,
     -- How long after the default start date (July 9, 1993) that the world's electricity turns off for good. Min: -1 Max: 2147483647 Default: 14
-    ElecShutModifier = 14,
+    ElecShutModifier = 60,
     -- How long alarm batteries can last for after the power shuts off. Min: -1 Max: 2147483647 Default: 14
-    AlarmDecayModifier = 14,
+    AlarmDecayModifier = 60,
     -- Any food that can rot or spoil. Min: 0.00 Max: 4.00 Default: 0.60
     FoodLootNew = 0.6,
     -- All items that can be read, includes fliers Min: 0.00 Max: 4.00 Default: 0.60
@@ -239,7 +239,7 @@ SandboxVars = {
     -- 3 = Normal
     -- 4 = Slow
     -- 5 = Very Slow
-    StatsDecrease = 3,
+    StatsDecrease = 4,
     -- The abundance of items found in Foraging mode. Default = Normal
     -- 1 = Very Poor
     -- 2 = Poor
@@ -285,9 +285,9 @@ SandboxVars = {
     -- When greater than 0, loot will not respawn in zones that have been visited within this number of in-game hours. Min: 0 Max: 2147483647 Default: 0
     SeenHoursPreventLootRespawn = 0,
     -- When greater than 0, after X hours, all containers in towns and trailer parks in the world will respawn loot. To spawn loot a container must have been looted at least once. Loot respawn is not impacted by visibility or subsequent looting. Min: 0 Max: 2147483647 Default: 0
-    HoursForLootRespawn = 0,
+    HoursForLootRespawn = 5,
     -- Containers with a number of items greater, or equal to, this setting will not respawn. Min: 0 Max: 2147483647 Default: 5
-    MaxItemsForLootRespawn = 5,
+    MaxItemsForLootRespawn = 20,
     -- Items will not respawn in buildings that players have barricaded or built in.
     ConstructionPreventsLootRespawn = true,
     -- A comma-separated list of item types that will be removed after HoursForWorldItemRemoval hours.
@@ -349,7 +349,7 @@ SandboxVars = {
     -- 3 = Often
     SleepingEvent = 1,
     -- How much fuel is consumed by generators per in-game hour. Min: 0.00 Max: 100.00 Default: 0.10
-    GeneratorFuelConsumption = 0.1,
+    GeneratorFuelConsumption = 0.01,
     -- The chance of electrical generators spawning on the map. Default = Rare
     -- 1 = None (not recommended)
     -- 2 = Insanely Rare
@@ -368,14 +368,14 @@ SandboxVars = {
     -- 6 = Very Often
     AnnotatedMapChance = 4,
     -- Adds free points during character creation. Min: -100 Max: 100 Default: 0
-    CharacterFreePoints = 0,
+    CharacterFreePoints = 8,
     -- Gives player-built constructions extra hit points so they are  more resistant to zombie damage. Default = Normal
     -- 1 = Very Low
     -- 2 = Low
     -- 3 = Normal
     -- 4 = High
     -- 5 = Very High
-    ConstructionBonusPoints = 3,
+    ConstructionBonusPoints = 4,
     -- The level of ambient lighting at night. Default = Normal
     -- 1 = Pitch Black
     -- 2 = Dark
@@ -419,7 +419,7 @@ SandboxVars = {
     -- 2 = Slow
     -- 3 = Normal
     -- 4 = Fast
-    ClothingDegradation = 3,
+    ClothingDegradation = 2,
     -- If fires spread when started.
     FireSpread = true,
     -- Number of in-game days before rotten food is removed from the map.  -1 means rotten food is never removed. Min: -1 Max: 2147483647 Default: -1
@@ -480,7 +480,7 @@ SandboxVars = {
     -- 3 = Low
     -- 4 = Normal
     -- 5 = High
-    CarSpawnRate = 3,
+    CarSpawnRate = 4,
     -- General engine loudness to zombies. Min: 0.00 Max: 100.00 Default: 1.00
     ZombieAttractionMultiplier = 1.0,
     -- Whether found vehicles are locked, need keys to start etc.
@@ -496,11 +496,11 @@ SandboxVars = {
     -- If enabled, gas pumps will never run out of fuel
     FuelStationGasInfinite = false,
     -- The minimum amount of gasoline that can spawn in gas pumps. Check the "Advanced" box below to use a custom amount. Min: 0.00 Max: 1.00 Default: 0.00
-    FuelStationGasMin = 0.0,
+    FuelStationGasMin = 0.5,
     -- The maximum amount of gasoline that can spawn in gas pumps. Check the "Advanced" box below to use a custom amount. Min: 0.00 Max: 1.00 Default: 0.70
     FuelStationGasMax = 0.7,
     -- The chance, as a percentage, that individual gas pumps will initially have no fuel. Min: 0 Max: 100 Default: 20
-    FuelStationGasEmptyChance = 20,
+    FuelStationGasEmptyChance = 0,
     -- How likely cars will be locked Default = Rare
     -- 1 = Never
     -- 2 = Extremely Rare
@@ -688,9 +688,9 @@ SandboxVars = {
     -- 5 = Very Abundant
     FishAbundance = 3,
     -- When a skill is at this level or above, television/VHS/other media  will not provide XP for it. Min: 0 Max: 10 Default: 3
-    LevelForMediaXPCutoff = 3,
+    LevelForMediaXPCutoff = 5,
     -- When a skill is at this level or above, scrapping furniture does not provide XP for the relevant skill. Does not apply to Electrical. Min: 0 Max: 10 Default: 0
-    LevelForDismantleXPCutoff = 0,
+    LevelForDismantleXPCutoff = 3,
     -- Number of days before old blood splats are removed. Removal happens when map chunks are loaded. 0 means they will never disappear. Min: 0 Max: 365 Default: 0
     BloodSplatLifespanDays = 0,
     -- Number of days before one can benefit from reading previously read literature items. Min: 1 Max: 365 Default: 90
@@ -768,7 +768,7 @@ SandboxVars = {
     },
     Map = {
         -- If enabled, a mini-map window will be available.
-        AllowMiniMap = false,
+        AllowMiniMap = true,
         -- If enabled, the world map can be accessed.
         AllowWorldMap = true,
         -- If enabled, the world map will be completely filled in on starting the game.
@@ -842,21 +842,21 @@ SandboxVars = {
         -- 4 = None
         -- 5 = Random
         -- 6 = Random between Normal and None
-        Memory = 2,
+        Memory = 6,
         -- Zombie vision radius. Default = Random between Normal and Poor
         -- 1 = Eagle
         -- 2 = Normal
         -- 3 = Poor
         -- 4 = Random
         -- 5 = Random between Normal and Poor
-        Sight = 2,
+        Sight = 5,
         -- Zombie hearing radius. Default = Random between Normal and Poor
         -- 1 = Pinpoint
         -- 2 = Normal
         -- 3 = Poor
         -- 4 = Random
         -- 5 = Random between Normal and Poor
-        Hearing = 2,
+        Hearing = 5,
         -- Activates the new advanced stealth mechanics, which allows you to hide from zombies behind cars, takes traits and weather into account, and much more.
         SpottedLogic = true,
         -- If zombies that have not seen/heard player can attack doors and constructions while roaming.
@@ -869,7 +869,7 @@ SandboxVars = {
         -- 3 = Day
         ActiveOnly = 1,
         -- If zombies trigger house alarms when breaking through windows or doors.
-        TriggerHouseAlarm = false,
+        TriggerHouseAlarm = true,
         -- If multiple attacking zombies can drag you down and kill you.  Dependent on zombie strength.
         ZombiesDragDown = true,
         -- If crawler zombies beside a player contribute to the chance of being dragged down and killed by a group of zombies.
@@ -910,9 +910,9 @@ SandboxVars = {
         -- The day when the population reaches its peak. Min: 1 Max: 365 Default: 28
         PopulationPeakDay = 28,
         -- The number of hours that must pass before zombies may respawn in a cell. If 0, spawning is disabled. Min: 0.00 Max: 8760.00 Default: 72.00
-        RespawnHours = 72.0,
+        RespawnHours = 73.0,
         -- The number of hours that a chunk must be unseen before zombies may respawn in it. Min: 0.00 Max: 8760.00 Default: 16.00
-        RespawnUnseenHours = 16.0,
+        RespawnUnseenHours = 72.0,
         -- The fraction of a cell's desired population that may respawn every RespawnHours. Min: 0.00 Max: 1.00 Default: 0.10
         RespawnMultiplier = 0.1,
         -- The number of hours that must pass before zombies migrate  to empty parts of the same cell. If 0, migration is disabled. Min: 0.00 Max: 8760.00 Default: 12.00
@@ -934,7 +934,7 @@ SandboxVars = {
     },
     MultiplierConfig = {
         -- The rate at which all skills level up. Min: 0.00 Max: 1000.00 Default: 1.00
-        Global = 1.0,
+        Global = 4.0,
         -- When enabled, all skills will use the Global Multiplier.
         GlobalToggle = true,
         -- Rate at which Fitness skill levels up. Min: 0.00 Max: 1000.00 Default: 1.00
