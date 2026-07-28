@@ -59,37 +59,37 @@ def generate_strings(modlist):
     
     mod_id_str = ';'.join(mod_ids)
     ini_mod_str = str(f'Mods={mod_id_str.strip()}')
-    yaml_mod_str = str(f'"MOD_NAMES={mod_id_str}"')
+    env_mod_str = str(f'MOD_NAMES={mod_id_str}')
 
     workshop_id_str = ';'.join(workshop_ids)
     ini_workshop_str = str(f'WorkshopItems={workshop_id_str}')
-    yaml_workshop_str = str(f'"MOD_WORKSHOP_IDS={workshop_id_str}"')
-    
-    with open('project_zomboid/PigeonGrindhouse.ini') as f:
+    env_workshop_str = str(f'MOD_WORKSHOP_IDS={workshop_id_str}')
+
+    with open('project_zomboid/configs/PigeonGrindhouse.ini') as f:
         ini = f.read()
 
-    with open('project_zomboid/PigeonGrindhouse.ini', 'w') as f:
-        ini = re.sub(r'Mods=.+', ini_mod_str, ini)
-        ini = re.sub(r'WorkshopItems=.+', ini_workshop_str, ini)
+    with open('project_zomboid/configs/PigeonGrindhouse.ini', 'w') as f:
+        ini = re.sub(r'^Mods=.*$', ini_mod_str, ini, flags=re.MULTILINE)
+        ini = re.sub(r'^WorkshopItems=.*$', ini_workshop_str, ini, flags=re.MULTILINE)
         f.write(ini)
 
-    with open('docker-compose.yaml') as f:
-        yaml = f.read()
-    
-    with open('docker-compose.yaml', 'w') as f:
-        yaml = re.sub(r'"MOD_NAMES=.+', yaml_mod_str, yaml)
-        yaml = re.sub(r'"MOD_WORKSHOP_IDS=.+', yaml_workshop_str, yaml)
-        f.write(yaml)
-    
+    with open('project_zomboid/override.env') as f:
+        env = f.read()
+
+    with open('project_zomboid/override.env', 'w') as f:
+        env = re.sub(r'^MOD_NAMES=.*$', env_mod_str, env, flags=re.MULTILINE)
+        env = re.sub(r'^MOD_WORKSHOP_IDS=.*$', env_workshop_str, env, flags=re.MULTILINE)
+        f.write(env)
+
 
 def main(args):
     if args.gen:
         generate_strings('project_zomboid/mod_list.csv')
-    
+
     if args.read == 'file':
-        read_mods_from_file('project_zomboid/PigeonGrindhouse.ini')
+        read_mods_from_file('project_zomboid/configs/PigeonGrindhouse.ini')
     elif args.read == 'disk':
-        read_mods_from_disk('/opt/zomboid/ZomboidDedicatedServer')
+        read_mods_from_disk(os.path.expandvars('$APPDATA/zomboid/server-files'))
     pass
 
 
