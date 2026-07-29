@@ -6,8 +6,12 @@ services:
       dockerfile: Dockerfile
       args:
         - USER=$PUID
-        - SERVER_BRANCH=42.13.1
-    image: "safetycrab/zomboid-dedicated-server:42.13.1"
+        # Empty tracks Steam's default/public branch, which becomes Build 42.20
+        # on 2026-07-29. Indie Stone only keeps one numbered checkpoint branch
+        # alive at a time (currently "42.19") rather than permanent per-version
+        # branches, so pinning to an old point release like 42.13.1 goes stale.
+        - SERVER_BRANCH=
+    image: "safetycrab/zomboid-dedicated-server:42.20"
     container_name: ${PROJ_PREFIX}.zomboid
     restart: "unless-stopped"
     ports:

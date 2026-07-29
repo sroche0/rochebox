@@ -1,5 +1,5 @@
 SandboxVars = {
-    VERSION = 6,
+    Version = 6,
     -- Changing this also sets the "Population Multiplier" in Advanced Zombie Options. Default = Normal
     -- 1 = Insane
     -- 2 = Very High
@@ -137,6 +137,10 @@ SandboxVars = {
     FoodLootNew = 0.6,
     -- All items that can be read, includes fliers Min: 0.00 Max: 4.00 Default: 0.60
     LiteratureLootNew = 0.6,
+    -- Books that provide skill XP multipliers. Min: 0.00 Max: 4.00 Default: 0.60
+    SkillBookLoot = 0.6,
+    -- Items that teach recipes. Min: 0.00 Max: 4.00 Default: 0.60
+    RecipeResourceLoot = 0.6,
     -- Medicine, bandages and first aid tools. Min: 0.00 Max: 4.00 Default: 0.60
     MedicalLootNew = 0.6,
     -- Fishing Rods, Tents, camping gear etc. Min: 0.00 Max: 4.00 Default: 0.60
@@ -736,7 +740,10 @@ SandboxVars = {
     -- The maximum hours of fuel that can be placed in a campfire, wood stove etc. Min: 1 Max: 168 Default: 8
     MaximumFireFuelHours = 8,
     -- Replaces Chance-To-Hit mechanics with Chance-To-Damage calculations.  This mode prioritizes player aiming.
-    FirearmUseDamageChance = true,
+    -- 1 = Disabled
+    -- 2 = Zombies only
+    -- 3 = All types of target
+    FirearmUseDamageChance = 3,
     -- A multiplier for the distance at which zombies can hear gunshots. Min: 0.20 Max: 2.00 Default: 1.00
     FirearmNoiseMultiplier = 1.0,
     -- Multiplier for firearm jamming chance. 0 disables jamming. Min: 0.00 Max: 10.00 Default: 0.00
@@ -826,6 +833,8 @@ SandboxVars = {
         -- 3 = Basic Navigation
         -- 4 = Random
         Cognition = 3,
+        -- Percentage chance zombies can randomly open doors. Check the "Advanced" box below to use a custom percentage. Min: 0 Max: 100 Default: 0
+        DoorOpeningPercentage = 0,
         -- How often zombies can crawl under parked vehicles. Default = Often
         -- 1 = Crawlers Only
         -- 2 = Extremely Rare

@@ -19,13 +19,11 @@ ENV STEAMAPPID=380870 \
     STEAM_VAC=true \
     USE_STEAM=true \
     GENERATE_SETTINGS=true \
-    SERVER_BRANCH="" \
-    MEMORY_XMX_GB=8 \
-    MEMORY_XMS_GB="" \
-    SERVER_BRANCH=""
+    SERVER_BRANCH=${SERVER_BRANCH} \
+    MAX_RAM=8192m
 
-COPY scripts/entry.sh "${HOMEDIR}/entry.sh"
-COPY scripts/install.scmd "${HOMEDIR}/install.scmd"
+COPY entry.sh "${HOMEDIR}/entry.sh"
+COPY install.scmd "${HOMEDIR}/install.scmd"
 
 RUN set -x \
 	# Install, update & upgrade packages
