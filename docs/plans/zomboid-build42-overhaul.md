@@ -44,8 +44,10 @@ Specifically, as currently observed in the repo:
 
 ## Goal
 
-- Mod management scripts (`mod_manager.py`, `mod_list.csv`, `get_changes.sh`) work correctly
-  against the current `configs/`/`scripts/` layout, driven through `crabbot`.
+- ~~Mod management scripts (`mod_manager.py`, `mod_list.csv`, `get_changes.sh`) work correctly
+  against the current `configs/`/`scripts/` layout, driven through `crabbot`~~ — superseded: Build
+  42.20's built-in mod manager replaces this pipeline (see Phase 1). `get_changes.sh` stays as a
+  plain git-pull-and-update convenience script.
 - The server runs Build 42.20 pulled from Steam's default/stable branch, with the `SERVER_BRANCH`
   plumbing actually functional (or intentionally removed if no longer needed).
 - `docker build` succeeds cleanly for the `project_zomboid` image, and `docker compose up` on
@@ -68,6 +70,17 @@ Specifically, as currently observed in the repo:
 ## Approach
 
 ### Phase 1 — Mod management bug fixes for the current project layout
+
+**Superseded 2026-07-30**: Build 42.20 ships Indie Stone's own built-in mod manager, so this
+whole CSV → INI/`override.env` pipeline is no longer the intended way to manage mods.
+`scripts/mod_manager.py` and `mod_list.csv` are left in the repo as-is (not deleted — the curated
+mod list in `mod_list.csv` may still be useful as a reference), but the automatic wiring is gone:
+`get_changes.sh` no longer calls `mod_manager.py -gen`, so pulling repo changes and updating the
+container is now just `git pull` + `crabbot project_zomboid update`, nothing mod-related. Also
+worth noting for whoever picks this up: `MOD_NAMES`/`MOD_WORKSHOP_IDS` in `override.env` were
+already dead before this — confirmed via grep that `entry.sh`, the `Dockerfile`, and compose never
+read them; only `mod_manager.py` itself wrote/read them. Safe to delete those two lines from the
+real `override.env` whenever convenient; they don't do anything either way now.
 
 - [x] Fix `mod_manager.py`'s `generate_strings()` to write to
       `project_zomboid/configs/PigeonGrindhouse.ini` instead of the stale
@@ -273,15 +286,44 @@ below are recorded here verbatim rather than left as "check the scratch files."
 
 ### Phase 3 — Dockerfile / compose optimization pass
 
-- [ ] Remove dead `environment:` entries in `compose.project_zomboid.yml` left over from the old
-      `renegademaster` image contract (`GAME_VERSION`, `PAUSE_ON_EMPTY`, `PUBLIC_SERVER`,
-      `USE_STEAM`) that `entry.sh` never reads — or wire them up in `entry.sh` if any are still
-      wanted behaviors, but don't leave them as silent no-ops either way.
+- [x] **Removed the dead `environment:` entries** (`GAME_VERSION`, `PAUSE_ON_EMPTY`,
+      `PUBLIC_SERVER`, `USE_STEAM`) left over from the old `renegademaster` image contract that
+      `entry.sh` never read.
+- [x] **Wired `install.scmd` into `entry.sh`** instead of deleting it (2026-07-30). It's a
+      steamcmd script, not a shell script, so steamcmd never expanded its `${STEAMAPPDIR}` /
+      `${STEAMAPPID}` / `${SERVER_BRANCH}` references — those were always literal text, meaning
+      even if something had invoked this file before, it would have been broken. Rewrote it with
+      `__PLACEHOLDER__`-style tokens and had `entry.sh` render them via `sed` into
+      `${HOME}/install.rendered.scmd` before calling `steamcmd.sh +runscript` on it (replacing the
+      old inline `steamcmd.sh +app_update ...` invocation). Also:
+      - Flipped `@ShutdownOnFailedCommand 0` → `1` — the old value told steamcmd to keep going
+        (and `quit` cleanly) even if `app_update` failed, which combined with `entry.sh`'s
+        `set -e` would have masked a failed update and launched the server on stale/incomplete
+        files instead of aborting the container.
+      - Added a guard in `entry.sh` that fails loudly if any `__PLACEHOLDER__` token survives
+        rendering (e.g. from a future edit to `install.scmd` that adds a new placeholder without a
+        matching `sed` line), instead of passing steamcmd a script with literal garbage in it.
+      - `install.scmd` is now also mountable read-only over `/home/steam/install.scmd` (commented
+        `volumes:` line in `compose.project_zomboid.yml`) so it can be edited without a rebuild.
+      - **Not yet verified against a real `docker build` + container run** — same Docker-access
+        blocker as the rest of Phase 2 (see below). Test this alongside that.
+- [x] **Promoted the non-secret, actually-used runtime knobs out of the Dockerfile/override.env
+      and into `compose.project_zomboid.yml`'s `environment:` block** (2026-07-30): `SERVER_BRANCH`,
+      `SERVER_NAME`, `MAX_RAM`. Cross-checked against what `entry.sh` actually reads (grepped for
+      every `${VAR}` reference) rather than guessing from the Dockerfile's `ENV` list — several
+      Dockerfile `ENV` vars (`STEAM_VAC`, `GENERATE_SETTINGS`, `DEFAULT_PORT`, `UDP_PORT`,
+      `RCON_PORT`, `CONFIG_DIR`) are never read by `entry.sh` either and are still dead; left them
+      alone since removing them wasn't asked for this round, but they're the same class of
+      leftover as the `environment:` entries just removed above — worth a follow-up.
+      `environment:` in compose takes precedence over both the Dockerfile's baked-in `ENV` default
+      and `env_file:`, so this also means any stale value left in the real (gitignored,
+      unreadable-to-this-session) `override.env` — e.g. an old `SERVER_BRANCH` pin — is now
+      silently overridden rather than winning. Recommend deleting any such stale lines from the
+      real `override.env` for clarity even though they're now dead, and reserving `override.env`
+      for genuinely secret values (`ADMIN_USERNAME`/`ADMIN_PASSWORD`).
 - [ ] Reconcile the Dockerfile's `EXPOSE` list against `compose.project_zomboid.yml`'s `ports:`
       and Project Zomboid's actual required ports; drop or add entries so the two agree and
       nothing unused is published.
-- [ ] Decide the fate of `install.scmd`: either wire it into `entry.sh` (replacing the inline
-      `steamcmd.sh` invocation) or delete it as dead weight.
 - [ ] Remove the commented-out `# entrypoint: ["tail", "-f", "/dev/null"]` debug line and the
       commented `${CONFIGS}/project_zomboid` volume mount in `compose.project_zomboid.yml` if
       they're no longer needed, or document why they're kept.
@@ -302,8 +344,10 @@ below are recorded here verbatim rather than left as "check the scratch files."
 - ~~Does Indie Stone's 42.20 stable release actually require a `-beta` branch name at all~~ —
   **Resolved**: dropping `-beta` entirely (empty `SERVER_BRANCH`) tracks default/public, verified
   live against Steam's branch list on 2026-07-27. See Phase 2.
-- Is `get_changes.sh` still wanted at all now that `crabbot` exists, or should it just be
-  deleted? (Phase 1.)
+- ~~Is `get_changes.sh` still wanted at all now that `crabbot` exists, or should it just be
+  deleted~~ — **Resolved 2026-07-30**: kept, minus the `mod_manager.py -gen` call (see Phase 1) —
+  it's now just `git pull` + `crabbot project_zomboid update`, which is still a real convenience
+  over running both by hand.
 - What's the actual host RAM budget available for `MAX_RAM`? Now that it's actually wired up
   (Phase 2), this matters for real — 8192m is a safe floor matching vendor default, but our
   100+-mod list may want more. Needs the real host's available memory to size correctly. (Phase 2.)

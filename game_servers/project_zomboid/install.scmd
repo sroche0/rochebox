@@ -1,7 +1,8 @@
-// Do not shutdown on a failed command
-@ShutdownOnFailedCommand 0
+// Abort immediately if a command fails, so a broken/incomplete update doesn't
+// silently fall through to launching the server on stale files.
+@ShutdownOnFailedCommand 1
 @NoPromptForPassword 1
-force_install_dir ${STEAMAPPDIR}
+force_install_dir __STEAMAPPDIR__
 login anonymous
-app_update ${STEAMAPPID} -beta ${SERVER_BRANCH} validate
+app_update __STEAMAPPID__ __BETA_ARGS__validate
 quit
