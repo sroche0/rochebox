@@ -204,6 +204,24 @@ below are recorded here verbatim rather than left as "check the scratch files."
         connection from a machine with actual Docker access** before calling Phase 2 verified
         end-to-end. Treat this as the first thing to do next session, or hand off to whoever has
         docker access on the host.
+      - **Update 2026-07-30, first real live bring-up attempt**: found and fixed a real bug this
+        surfaced. `STEAMAPPDIR="${HOMEDIR}/${STEAMAPP}"` and `STEAMAPP=projectzomboid` were set in
+        the same multi-line `ENV` instruction — Docker only expands `${VAR}` references against
+        variables from *previous* instructions, not sibling keys being set in the same one, so
+        `${STEAMAPP}` was empty and `STEAMAPPDIR` silently baked to `/home/steam/` instead of
+        `/home/steam/projectzomboid`. This had been latent since before Build 42.20 (the old
+        `entry.sh` hardcoded `${HOME}/projectzomboid` directly and never referenced
+        `STEAMAPPDIR`), and only surfaced once `install.scmd` started using `${STEAMAPPDIR}` for
+        `force_install_dir`. Symptom in production: steamcmd happily downloaded and installed all
+        ~7GB to `/home/steam/` ("Success! App '380870' fully installed.") instead of
+        `/home/steam/projectzomboid/`, so `entry.sh`'s later `sed` on
+        `.../projectzomboid/ProjectZomboid64.json` failed with "No such file or directory" and the
+        container crash-looped. Fixed by splitting `STEAMAPP` and `STEAMAPPDIR` into their own
+        prior `ENV` instructions (same root cause would've hit `CONFIG_DIR` too, fixed for both).
+        Not yet re-verified live — next `docker compose up --build` after this fix will re-download
+        the full ~7GB since the previous run's files landed in the container's ephemeral layer at
+        `/home/steam/`, not the bind-mounted `server-files` volume, so nothing persisted to clean
+        up on the host.
 - [x] **SandboxVars.lua reconciliation: done and verified.** Continuing from the prior session's
       analysis (which found 58 real customizations and flagged `FirearmUseDamageChance` and
       `LootItemRemovalList` as needing a decision — see git history of this file for that raw

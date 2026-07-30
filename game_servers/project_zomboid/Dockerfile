@@ -5,9 +5,15 @@ LABEL maintainer="shawn@rochebox.net"
 ARG USER
 ARG SERVER_BRANCH
 
+# STEAMAPP/STEAMAPPDIR must be their own ENV instructions, set before anything that
+# references them: within a single multi-line ENV instruction, later keys can't see
+# earlier keys set in that same instruction -- only vars from previous instructions.
+# Getting this wrong silently resolves STEAMAPPDIR to just "${HOMEDIR}/" (STEAMAPP
+# empty), which is exactly what happened here before this fix.
+ENV STEAMAPP=projectzomboid
+ENV STEAMAPPDIR="${HOMEDIR}/${STEAMAPP}"
+
 ENV STEAMAPPID=380870 \
-    STEAMAPP=projectzomboid \
-    STEAMAPPDIR="${HOMEDIR}/${STEAMAPP}" \
     HOME=/home/steam \
     CONFIG_DIR=${STEAMAPPDIR}/config \
     ADMIN_USERNAME=admin \
