@@ -15,16 +15,8 @@ services:
       - "16262:16262/udp"
       - "27015:27015/tcp"
     environment:
-      # These are the non-secret knobs entry.sh actually reads. They're set here
-      # (rather than baked into the Dockerfile or hidden in override.env) so they
-      # can be changed with just a container restart -- no image rebuild needed.
-      # `environment:` here wins over both the Dockerfile's ENV default and
-      # anything set in env_file, so this is the one place to look/edit.
-      #
-      # Empty tracks Steam's default/public branch, currently Build 42.20. Indie
-      # Stone only keeps one numbered checkpoint branch alive at a time (currently
-      # "42.19") rather than permanent per-version branches, so pinning to an old
-      # point release like 42.13.1 goes stale -- prefer empty unless you have a
+      # Empty tracks Steam's default/public branch,Indie Stone only keeps one 
+      # numbered checkpoint branch alive at a time, prefer empty unless you have a
       # specific reason to pin.
       - SERVER_BRANCH=
       - SERVER_NAME=pzserver
