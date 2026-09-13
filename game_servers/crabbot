@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 import os
-import re
 import sys
 import subprocess
 import argparse
-
-# Matches "compose.<server>.yml" specifically - not "docker-compose.yml"/
-# "docker-compose.yaml", which are used by the top-level aggregator.
-COMPOSE_FILE_RE = re.compile(r"^compose\.(.+)\.yml$")
 
 
 class CrabBot:
@@ -127,9 +122,10 @@ def main():
     script_dir = os.path.dirname(os.path.realpath(__file__))
     for root, dirs, files in os.walk(script_dir, topdown=False):
         for name in files:
-            match = COMPOSE_FILE_RE.match(name)
-            if match:
-                server_list.append(match.group(1))
+            if 'compose' in name and '.yml' in name:
+                name = name.replace('compose.', '')
+                name = name.replace('.yml', '')
+                server_list.append(name)
 
     parser = argparse.ArgumentParser(description="Control containerized dedicated game servers.")
     parser.add_argument("server", help=f"Controllable servers are: {', '.join(server_list)}")
