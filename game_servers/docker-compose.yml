@@ -1,0 +1,19 @@
+# Aggregator: `docker compose up -d` from this directory brings up every included
+# server together. Each compose.<server>.yml also remains independently runnable on
+# its own (`crabbot <server> up`, or `docker compose -f compose.<server>.yml up`) -
+# every file below still declares its own top-level `name:`, so it keeps its own
+# project identity when driven that way. This file has no `name:` of its own on
+# purpose, to avoid fighting with those per-file names.
+#
+# Deactivating a server: remove it from include: below, don't comment out its file.
+
+include:
+  - compose.core-keeper.yml
+  - compose.factorio.yml
+  - compose.foundry.yml
+  - compose.minecraft.yml
+  - compose.project_zomboid.yml
+  - compose.satisfactory.yml
+  - compose.teamspeak.yml
+  - compose.valheim.yml
+  - compose.vrising.yml
