@@ -15,4 +15,4 @@ services:
     volumes:
       - ${APPDATA}/valheim-server/settings:/config
       - ${APPDATA}/valheim-server/data:/opt/valheim
-      - ${CONFIGS}/valheim/valheim_plus.cfg:/config/valheimplus/valheim_plus.cfg
+      - ./valheim/valheim_plus.cfg:/config/valheimplus/valheim_plus.cfg
